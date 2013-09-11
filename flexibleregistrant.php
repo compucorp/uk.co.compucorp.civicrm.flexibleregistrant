@@ -66,11 +66,6 @@ function flexibleregistrant_civicrm_pre( $op, $objectName, $id, &$params ){
 }
 
 
-function flexibleregistrant_civicrm_validateForm( $formName, &$fields, &$files, &$form, &$errors ) {
-
-}
-
-
 function flexibleregistrant_civicrm_buildForm($formName, &$form) {
   if($formName == 'CRM_Event_Form_Registration_Register' || $formName == 'CRM_Event_Form_Registration_AdditionalParticipant'){
     $result =civicrm_api("Event","get", array ('version' => '3','sequential' =>'1', 'id' => $form->_eventId, 'return' => 'custom'));

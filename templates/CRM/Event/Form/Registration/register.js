@@ -1,5 +1,5 @@
 cj(function($){
-  $('#noOfparticipants').hide();
+  //$('#noOfparticipants').hide();
   $('input[type=radio]').on('change', function() {
     if($(this).attr('price')){
       eval( 'var option = ' + $(this).attr('price') );

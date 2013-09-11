@@ -1,4 +1,0 @@
-cj(function($){
-  $('#priceset').hide();
-});
-

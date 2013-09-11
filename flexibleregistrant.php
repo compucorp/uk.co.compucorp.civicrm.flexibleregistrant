@@ -62,7 +62,6 @@ function flexibleregistrant_civicrm_pre( $op, $objectName, $id, &$params ){
       }
     }
   }
-
 }
 
 
@@ -77,18 +76,20 @@ function flexibleregistrant_civicrm_buildForm($formName, &$form) {
           case 'CRM_Event_Form_Registration_Register':
             CRM_Core_Resources::singleton()->addScriptFile(
               'uk.co.compucorp.civicrm.flexibleregistrant',
-              'templates/CRM/Event/Form/Registration/flexible.js',
+              'templates/CRM/Event/Form/Registration/register.js',
                10,
                'page-footer');
+            CRM_Core_Resources::singleton()->addStyleFile(
+              'uk.co.compucorp.civicrm.flexibleregistrant',
+              'css/register.css');
             break;
           case 'CRM_Event_Form_Registration_AdditionalParticipant':
-            CRM_Core_Resources::singleton()->addScriptFile(
+            CRM_Core_Resources::singleton()->addStyleFile(
               'uk.co.compucorp.civicrm.flexibleregistrant',
-              'templates/CRM/Event/Form/Registration/add_participant.js',
-              10,
-              'page-footer');
+              'css/add_participant.css');
             break;
         }
+
       }
     }
   }

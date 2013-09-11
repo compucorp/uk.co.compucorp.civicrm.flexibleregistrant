@@ -60,10 +60,7 @@ function flexibleregistrant_civicrm_pre( $op, $objectName, $id, &$params ){
        $params['participant_count'] = 1; // force the participant count = 1
 
       }
-      dpr($params);
     }
-
-    exit;
   }
 
 }

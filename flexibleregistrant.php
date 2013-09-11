@@ -49,7 +49,21 @@ function flexibleregistrant_civicrm_disable() {
 
 function flexibleregistrant_civicrm_pre( $op, $objectName, $id, &$params ){
   if($objectName == 'LineItem'){
-    $params['participant_count'] = 1; // force the participant count = 1
+    $results = civicrm_api("Participant","get", array('version' => '3','sequential' =>'1', 'id' => $params['entity_id']));
+    if(!empty($results['values'][0])){
+      $participant = $results['values'][0];
+      $eid = $participant['event_id'];
+      $eresult =civicrm_api("Event","get", array ('version' => '3','sequential' =>'1', 'id' => $eid, 'return' => 'custom'));
+      $event = $eresult['values']['0'];
+      $custom = $event['custom_40']; //TODO: Looked up for the field name;
+      if($custom == 1){
+       $params['participant_count'] = 1; // force the participant count = 1
+
+      }
+      dpr($params);
+    }
+
+    exit;
   }
 
 }
@@ -61,19 +75,30 @@ function flexibleregistrant_civicrm_validateForm( $formName, &$fields, &$files, 
 
 
 function flexibleregistrant_civicrm_buildForm($formName, &$form) {
-  if ($formName == 'CRM_Event_Form_Registration_Register') {
-    CRM_Core_Resources::singleton()->addScriptFile(
-      'uk.co.compucorp.civicrm.flexibleregistrant',
-      'templates/CRM/Event/Form/Registration/flexible.js',
-       10,
-       'page-footer');
-  }
-  elseif ($formName == 'CRM_Event_Form_Registration_AdditionalParticipant'){
-    CRM_Core_Resources::singleton()->addScriptFile(
-      'uk.co.compucorp.civicrm.flexibleregistrant',
-      'templates/CRM/Event/Form/Registration/add_participant.js',
-       10,
-       'page-footer');
+  if($formName == 'CRM_Event_Form_Registration_Register' || $formName == 'CRM_Event_Form_Registration_AdditionalParticipant'){
+    $result =civicrm_api("Event","get", array ('version' => '3','sequential' =>'1', 'id' => $form->_eventId, 'return' => 'custom'));
+    $event = $result['values']['0'];
+    if(isset($event['custom_40'])){
+      $custom = $event['custom_40']; //TODO: Looked up for the field name;
+      if($custom == 1){
+        switch ($formName) {
+          case 'CRM_Event_Form_Registration_Register':
+            CRM_Core_Resources::singleton()->addScriptFile(
+              'uk.co.compucorp.civicrm.flexibleregistrant',
+              'templates/CRM/Event/Form/Registration/flexible.js',
+               10,
+               'page-footer');
+            break;
+          case 'CRM_Event_Form_Registration_AdditionalParticipant':
+            CRM_Core_Resources::singleton()->addScriptFile(
+              'uk.co.compucorp.civicrm.flexibleregistrant',
+              'templates/CRM/Event/Form/Registration/add_participant.js',
+              10,
+              'page-footer');
+            break;
+        }
+      }
+    }
   }
   elseif ($formName == 'CRM_Event_Form_Registration_Confirm' || $formName == 'CRM_Event_Form_Registration_ThankYou'){
     $form->assign('lineItem', NULL );

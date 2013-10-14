@@ -37,13 +37,6 @@ function flexibleregistrant_civicrm_install() {
  * Implementation of hook_civicrm_uninstall
  */
 function flexibleregistrant_civicrm_uninstall() {
-  civicrm_api('CustomGroup', 'delete', array(
-    'version' => 3,
-    'id' => CRM_Utils_Array::value('id',civicrm_api('CustomGroup', 'getsingle', array(
-      'version' => 3,
-      'name' => 'CUP_Event_Flexible_Configuration')
-    )),
-  ));
   return _flexibleregistrant_civix_civicrm_uninstall();
 }
 

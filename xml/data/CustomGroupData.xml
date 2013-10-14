@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<CustomData>
+  <CustomGroups>
+    <CustomGroup>
+      <name>CUP_Event_Flexible_Configuration</name>
+      <title>Event Flexible Configuration Price Set</title>
+      <extends>Event</extends>
+      <style>Inline</style>
+      <collapse_display>0</collapse_display>
+      <help_pre></help_pre>
+      <help_post></help_post>
+      <weight>1</weight>
+      <is_active>1</is_active>
+      <table_name>cup_event_flexible_configuration</table_name>
+      <!--<is_multiple>1</is_multiple>-->
+      <collapse_adv_display>0</collapse_adv_display>
+      <!--<created_date>2013-10-14 02:28:19</created_date>-->
+    </CustomGroup>
+  </CustomGroups>
+  <CustomFields>
+    <CustomField>
+      <name>CUP_Use_Flexible_Price_Set</name>
+      <label>Use flexible price set for this event?</label>
+      <data_type>Boolean</data_type>
+      <html_type>Radio</html_type>
+      <is_required>0</is_required>
+      <is_searchable>1</is_searchable>
+      <is_search_range>1</is_search_range>
+      <weight>1</weight>
+      <is_active>1</is_active>
+      <is_view>0</is_view>
+      <text_length>255</text_length>
+      <note_columns>60</note_columns>
+      <note_rows>4</note_rows>
+      <column_name>cup_use_flexible_price_set</column_name>
+      <custom_group_name>CUP_Event_Flexible_Configuration</custom_group_name>
+    </CustomField>
+  </CustomFields>
+</CustomData>

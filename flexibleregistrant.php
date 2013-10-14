@@ -22,6 +22,14 @@ function flexibleregistrant_civicrm_xmlMenu(&$files) {
  * Implementation of hook_civicrm_install
  */
 function flexibleregistrant_civicrm_install() {
+  require_once 'CRM/Utils/Migrate/Import.php';
+  $import = new CRM_Utils_Migrate_Import( );
+  $extRoot = dirname( __FILE__ ) . DIRECTORY_SEPARATOR;
+  $op = $extRoot  . 'xml' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR . 'CustomGroupData.xml';
+  $import->run( $op );
+  // rebuild the menu so our path is picked up
+  require_once 'CRM/Core/Invoke.php';
+  CRM_Core_Invoke::rebuildMenuAndCaches( );
   return _flexibleregistrant_civix_civicrm_install();
 }
 
@@ -29,6 +37,13 @@ function flexibleregistrant_civicrm_install() {
  * Implementation of hook_civicrm_uninstall
  */
 function flexibleregistrant_civicrm_uninstall() {
+  civicrm_api('CustomGroup', 'delete', array(
+    'version' => 3,
+    'id' => CRM_Utils_Array::value('id',civicrm_api('CustomGroup', 'getsingle', array(
+      'version' => 3,
+      'name' => 'CUP_Event_Flexible_Configuration')
+    )),
+  ));
   return _flexibleregistrant_civix_civicrm_uninstall();
 }
 

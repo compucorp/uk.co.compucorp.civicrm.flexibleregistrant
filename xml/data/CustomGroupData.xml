@@ -32,7 +32,7 @@
       <text_length>255</text_length>
       <note_columns>60</note_columns>
       <note_rows>4</note_rows>
-      <column_name>cup_use_flexible_price_set</column_name>
+      <column_name>use_flexible_price_set</column_name>
       <custom_group_name>CUP_Event_Flexible_Configuration</custom_group_name>
     </CustomField>
   </CustomFields>

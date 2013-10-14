@@ -79,67 +79,80 @@ function flexibleregistrant_civicrm_pre( $op, $objectName, $id, &$params ){
   }
 }
 
-
-function flexibleregistrant_civicrm_buildForm($formName, &$form) {
-  if($formName == 'CRM_Event_Form_Registration_Register' || $formName == 'CRM_Event_Form_Registration_AdditionalParticipant'){
-    $result =civicrm_api("Event","get", array ('version' => '3','sequential' =>'1', 'id' => $form->_eventId, 'return' => 'custom'));
-    $event = $result['values']['0'];
-    if(isset($event['custom_40'])){
-      $custom = $event['custom_40']; //TODO: Looked up for the field name;
-      if($custom == 1){
-        switch ($formName) {
-          case 'CRM_Event_Form_Registration_Register':
-            CRM_Core_Resources::singleton()->addScriptFile(
-              'uk.co.compucorp.civicrm.flexibleregistrant',
-              'templates/CRM/Event/Form/Registration/register.js',
-               10,
-               'page-footer');
-            CRM_Core_Resources::singleton()->addStyleFile(
-              'uk.co.compucorp.civicrm.flexibleregistrant',
-              'css/register.css');
-            break;
-          case 'CRM_Event_Form_Registration_AdditionalParticipant':
-            CRM_Core_Resources::singleton()->addStyleFile(
-              'uk.co.compucorp.civicrm.flexibleregistrant',
-              'css/add_participant.css');
-            break;
+function flexibleregistrant_civicrm_validateForm( $formName, &$fields, &$files, &$form, &$errors ) {
+  if ( $formName == 'CRM_Event_Form_ManageEvent_Fee' ) {
+    $eid = CRM_Utils_Array::value('id', $fields);
+    if($eid){
+      $isFlex = _isEventConfiguredToUseFlexiblePriceSet($eid);
+      if($isFlex){
+        if(!CRM_Utils_Array::value('price_set_id', $fields)){
+          $errors['price_set_id'] = ts('This event is a flexible registrant event, please select a price set');
         }
-
       }
     }
   }
-  elseif ($formName == 'CRM_Event_Form_Registration_Confirm' || $formName == 'CRM_Event_Form_Registration_ThankYou'){
-    $form->assign('lineItem', NULL );
-    $amount = $form->getVar('_amount');
-    $params = $form->getVar('_params');
-    //Rebuild amount
-    foreach ($params as $k => $v) {
-      if (is_array($v)) {
-        foreach (array(
-          'first_name', 'last_name') as $name) {
-          if (isset($v['billing_' . $name]) &&
-            !isset($v[$name])
-          ) {
-            $v[$name] = $v['billing_' . $name];
-          }
-        }
+  return;
+}
 
-        if (CRM_Utils_Array::value('first_name', $v) && CRM_Utils_Array::value('last_name', $v)) {
-            $append = $v['first_name'] . ' ' . $v['last_name'];
+
+function flexibleregistrant_civicrm_buildForm($formName, &$form) {
+  if($formName == 'CRM_Event_Form_Registration_Register' || $formName == 'CRM_Event_Form_Registration_AdditionalParticipant'){
+    $isFlex = _isEventConfiguredToUseFlexiblePriceSet($form->_id);
+    if($isFlex){
+      switch ($formName) {
+        case 'CRM_Event_Form_Registration_Register':
+          CRM_Core_Resources::singleton()->addScriptFile(
+            'uk.co.compucorp.civicrm.flexibleregistrant',
+            'templates/CRM/Event/Form/Registration/register.js',
+            10,
+            'page-footer');
+          CRM_Core_Resources::singleton()->addStyleFile(
+            'uk.co.compucorp.civicrm.flexibleregistrant',
+            'css/register.css');
+          break;
+         case 'CRM_Event_Form_Registration_AdditionalParticipant':
+          CRM_Core_Resources::singleton()->addStyleFile(
+            'uk.co.compucorp.civicrm.flexibleregistrant',
+            'css/add_participant.css');
+          break;
         }
-        else {
-          //use an email if we have one
-          foreach ($v as $v_key => $v_val) {
-            if (substr($v_key, 0, 6) == 'email-') {
-              $append = $v[$v_key];
+    }
+  }
+  elseif ($formName == 'CRM_Event_Form_Registration_Confirm' || $formName == 'CRM_Event_Form_Registration_ThankYou'){
+    $isFlex = _isEventConfiguredToUseFlexiblePriceSet($form->_id);
+    if($isFlex){
+      $form->assign('lineItem', NULL );
+      $amount = $form->getVar('_amount');
+      $params = $form->getVar('_params');
+      //Rebuild amount
+      foreach ($params as $k => $v) {
+        if (is_array($v)) {
+          foreach (array(
+            'first_name', 'last_name') as $name) {
+            if (isset($v['billing_' . $name]) &&
+              !isset($v[$name])
+            ) {
+              $v[$name] = $v['billing_' . $name];
             }
           }
-        }
 
-        $amount[$k]['label'] = $append;
+          if (CRM_Utils_Array::value('first_name', $v) && CRM_Utils_Array::value('last_name', $v)) {
+              $append = $v['first_name'] . ' ' . $v['last_name'];
+          }
+          else {
+            //use an email if we have one
+            foreach ($v as $v_key => $v_val) {
+              if (substr($v_key, 0, 6) == 'email-') {
+                $append = $v[$v_key];
+              }
+            }
+          }
+
+          $amount[$k]['label'] = $append;
+        }
       }
+      $form->assign('amounts', $amount );
     }
-    $form->assign('amounts', $amount );
   }
 }
 
@@ -166,3 +179,26 @@ function flexibleregistrant_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) 
 function flexibleregistrant_civicrm_managed(&$entities) {
   return _flexibleregistrant_civix_civicrm_managed($entities);
 }
+
+
+/**
+* A function to check if the event is configured to use the flexible price set
+*
+*/
+function _isEventConfiguredToUseFlexiblePriceSet($eid){
+  $isConfigured = FALSE;
+  if(!$eid){
+    return $isConfigured;
+  }
+  $q = " SELECT use_flexible_price_set
+         FROM   civicrm_value_cup_event_flexible_configuration
+         WHERE entity_id = %1";
+  $params = array( 1 => array( $eid, 'Integer' ) );
+  $useFlexiblePriceSet = CRM_Core_DAO::singleValueQuery( $q, $params );
+  if($useFlexiblePriceSet == 1){
+    $isConfigured = TRUE;
+  }
+  return $isConfigured;
+}
+
+

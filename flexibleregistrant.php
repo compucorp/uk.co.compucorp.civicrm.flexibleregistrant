@@ -78,8 +78,28 @@ function flexibleregistrant_civicrm_validateForm( $formName, &$fields, &$files, 
     if($eid){
       $isFlex = _isEventConfiguredToUseFlexiblePriceSet($eid);
       if($isFlex){
-        if(!CRM_Utils_Array::value('price_set_id', $fields)){
+        $priceSetId = CRM_Utils_Array::value('price_set_id', $fields);
+        if(!$priceSetId){
           $errors['price_set_id'] = ts('This event is a flexible registrant event, please select a price set');
+        }else{
+          $isValid = FALSE;
+          $priceFields = civicrm_api("PriceField","get", array ('version' => '3', 'price_set_id' => $priceSetId));
+          if(CRM_Utils_Array::value('count', $priceFields) == 1){
+             $priceFieldValue = civicrm_api("PriceFieldValue","get", array (
+              'version' => '3',
+              'sequential' =>'1',
+              'price_field_id' => CRM_Utils_Array::value('id', $priceFields)
+             ));
+             foreach ($priceFieldValue['values'] as $key => $value) {
+              if( CRM_Utils_Array::value('amount', $value) == 0 && CRM_Utils_Array::value('is_default', $value) == 1){
+                $isValid = TRUE;
+                return;
+              }
+             }
+          }
+          if(!$isValid){
+            $errors['price_set_id'] = ts('The selected price set is invalid for flexible price set event');
+          }
         }
       }
     }

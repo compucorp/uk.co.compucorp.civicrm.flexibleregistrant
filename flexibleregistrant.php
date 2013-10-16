@@ -56,20 +56,21 @@ function flexibleregistrant_civicrm_disable() {
 
 
 function flexibleregistrant_civicrm_pre( $op, $objectName, $id, &$params ){
-  /*
   if($objectName == 'LineItem'){
-    $results = civicrm_api("Participant","get", array('version' => '3','sequential' =>'1', 'id' => $params['entity_id']));
+    $results = civicrm_api("Participant","get", array(
+      'version' => '3',
+      'sequential' =>'1',
+      'id' => $params['entity_id'] ,
+      'entity_table' => 'civicrm_participant'));
     if(!empty($results['values'][0])){
       $participant = $results['values'][0];
       $eventId = $participant['event_id'];
-      $isFlex = _isEventConfiguredToUseFlexiblePriceSet($eventId);
+      $isFlex = CRM_Flexibleregistrant_Utils::isEventConfiguredToUseFlexiblePriceSet($eventId);
       if($isFlex){
-        if($params['participant_count'] == 0){
-          //$params['participant_count'] = 1; // force the participant count = 1
-        }
+        $params['participant_count'] = 1; // force the participant count = 1
       }
     }
-  }*/
+  }
 }
 
 function flexibleregistrant_civicrm_validateForm( $formName, &$fields, &$files, &$form, &$errors ) {
@@ -77,7 +78,7 @@ function flexibleregistrant_civicrm_validateForm( $formName, &$fields, &$files, 
     if($fields['is_monetary']){
       $eid = CRM_Utils_Array::value('id', $fields);
       if($eid){
-        $isFlex = _isEventConfiguredToUseFlexiblePriceSet($eid);
+        $isFlex = CRM_Flexibleregistrant_Utils::isEventConfiguredToUseFlexiblePriceSet($eid);
         if($isFlex){
           $priceSetId = CRM_Utils_Array::value('price_set_id', $fields);
           if(!$priceSetId){
@@ -111,10 +112,15 @@ function flexibleregistrant_civicrm_validateForm( $formName, &$fields, &$files, 
   return;
 }
 
+function flexibleregistrant_civicrm_pageRun( &$page ){
+  if(get_class($page) == 'CRM_Event_Page_EventInfo'){}
+
+}
+
 
 function flexibleregistrant_civicrm_buildForm($formName, &$form) {
   if($formName == 'CRM_Event_Form_Registration_Register' || $formName == 'CRM_Event_Form_Registration_AdditionalParticipant'){
-    $isFlex = _isEventConfiguredToUseFlexiblePriceSet($form->_eventId);
+    $isFlex = CRM_Flexibleregistrant_Utils::isEventConfiguredToUseFlexiblePriceSet($form->_eventId);
     if($isFlex){
       switch ($formName) {
         case 'CRM_Event_Form_Registration_Register':
@@ -136,7 +142,7 @@ function flexibleregistrant_civicrm_buildForm($formName, &$form) {
     }
   }
   elseif ($formName == 'CRM_Event_Form_Registration_Confirm' || $formName == 'CRM_Event_Form_Registration_ThankYou'){
-    $isFlex = _isEventConfiguredToUseFlexiblePriceSet($form->_eventId);
+    $isFlex = CRM_Flexibleregistrant_Utils::isEventConfiguredToUseFlexiblePriceSet($form->_eventId);
     if($isFlex){
       $form->assign('lineItem', NULL );
       $amount = $form->getVar('_amount');
@@ -173,20 +179,6 @@ function flexibleregistrant_civicrm_buildForm($formName, &$form) {
   }
 }
 
-function flexibleregistrant_civicrm_postProcess( $formName, &$form ){
-  if($formName == 'CRM_Event_Form_Registration_AdditionalParticipant'){
-
-  }
-}
-
-function flexibleregistrant_civicrm_post( $op, $objectName, $objectId, &$objectRef ){
-
-
-}
-
-
-
-
 
 /**
  * Implementation of hook_civicrm_upgrade
@@ -209,27 +201,6 @@ function flexibleregistrant_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) 
  */
 function flexibleregistrant_civicrm_managed(&$entities) {
   return _flexibleregistrant_civix_civicrm_managed($entities);
-}
-
-
-/**
-* A function to check if the event is configured to use the flexible price set
-*
-*/
-function _isEventConfiguredToUseFlexiblePriceSet($eid){
-  $isConfigured = FALSE;
-  if(!$eid){
-    return $isConfigured;
-  }
-  $q = " SELECT use_flexible_price_set
-         FROM   civicrm_value_cup_event_flexible_configuration
-         WHERE entity_id = %1";
-  $params = array( 1 => array( $eid, 'Integer' ) );
-  $useFlexiblePriceSet = CRM_Core_DAO::singleValueQuery( $q, $params );
-  if($useFlexiblePriceSet == 1){
-    $isConfigured = TRUE;
-  }
-  return $isConfigured;
 }
 
 

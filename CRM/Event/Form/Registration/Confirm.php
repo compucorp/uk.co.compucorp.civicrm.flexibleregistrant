@@ -538,8 +538,6 @@ class CRM_Event_Form_Registration_Confirm extends CRM_Event_Form_Registration {
         }
 
         $participantCount[$participantNum] = 'participant';
-        //lets get additional participant id to cancel.
-
 
       }else{ //not flex event
         if ($record == 'skip') {
@@ -551,6 +549,7 @@ class CRM_Event_Form_Registration_Confirm extends CRM_Event_Form_Registration {
         }
       }
 
+      //lets get additional participant id to cancel.
       if ($this->_allowConfirmation && is_array($cancelledIds)) {
           $additonalId = CRM_Utils_Array::value('participant_id', $record);
           if ($additonalId && $key = array_search($additonalId, $cancelledIds)) {

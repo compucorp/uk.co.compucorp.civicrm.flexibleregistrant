@@ -11,7 +11,7 @@
       <help_post></help_post>
       <weight>1</weight>
       <is_active>1</is_active>
-      <table_name>cup_event_flexible_configuration</table_name>
+      <table_name>civicrm_cup_event_flexible_configuration</table_name>
       <!--<is_multiple>1</is_multiple>-->
       <collapse_adv_display>0</collapse_adv_display>
       <!--<created_date>2013-10-14 02:28:19</created_date>-->

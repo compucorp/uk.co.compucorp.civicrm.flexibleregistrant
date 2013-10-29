@@ -1,4 +1,5 @@
 cj(function($){
+
   $('input[type=radio]').on('change', function() {
     if($(this).attr('price')){
       eval( 'var option = ' + $(this).attr('price') );
@@ -8,14 +9,17 @@ cj(function($){
       }
   });
 
+
   $('input[type=radio]').each(function(){
     var el  = $(this);
-    if(el.data('amount') == 0){
-      el.parent().parent().hide();
-    }
-    if(el.attr('value') == 0){
-      el.prop('checked', true);
-      el.parent().parent().hide();
+    if($(el).attr('name') != 'payment_processor'){
+      if(el.data('amount') == 0){
+        el.parent().parent().hide();
+      }
+      if(el.attr('value') == 0){
+        el.prop('checked', true);
+        el.parent().parent().hide();
+      }
     }
   });
 

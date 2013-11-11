@@ -141,6 +141,7 @@ function flexibleregistrant_civicrm_buildForm($formName, &$form) {
         }
     }
   }
+  /* CPM-201
   elseif ($formName == 'CRM_Event_Form_Registration_Confirm' || $formName == 'CRM_Event_Form_Registration_ThankYou'){
     $isFlex = CRM_Flexibleregistrant_Utils::isEventConfiguredToUseFlexiblePriceSet($form->_eventId);
     if($isFlex){
@@ -176,7 +177,7 @@ function flexibleregistrant_civicrm_buildForm($formName, &$form) {
       }
       $form->assign('amounts', $amount );
     }
-  }
+  }*/
 }
 
 

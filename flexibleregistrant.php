@@ -166,31 +166,7 @@ function flexibleregistrant_civicrm_buildForm($formName, &$form) {
       'template' => 'CRM/Event/Form/Registration/Eventfee.tpl'
       ));
       
-      //Rebuild amount
-      // foreach ($params as $k => $v) {
-        // if (is_array($v)) {
-          // foreach (array('first_name', 'last_name') as $name) {
-            // if (isset($v['billing_' . $name]) &&
-              // !isset($v[$name])
-            // ) {
-              // $v[$name] = $v['billing_' . $name];
-            // }
-          // }
-          // if (CRM_Utils_Array::value('first_name', $v) && CRM_Utils_Array::value('last_name', $v)) {
-              // $append = $v['first_name'] . ' ' . $v['last_name'];
-          // }
-          // else {
-            // //use an email if we have one
-            // foreach ($v as $v_key => $v_val) {
-              // if (substr($v_key, 0, 6) == 'email-') {
-                // $append = $v[$v_key];
-              // }
-            // }
-          // }
-          // $amount[$k]['label'] = $append;
-        // }
-      // }
-      // $form->assign('amounts', $amount );
+      
     }
   }
 }

@@ -141,44 +141,36 @@ function flexibleregistrant_civicrm_buildForm($formName, &$form) {
         }
     }
   }
-  /* CPM-201
+  /* CPM-201 */
   elseif ($formName == 'CRM_Event_Form_Registration_Confirm' || $formName == 'CRM_Event_Form_Registration_ThankYou'){
     $isFlex = CRM_Flexibleregistrant_Utils::isEventConfiguredToUseFlexiblePriceSet($form->_eventId);
     if($isFlex){
-      $form->assign('lineItem', NULL );
+      
       $amount = $form->getVar('_amount');
       $params = $form->getVar('_params');
-      //Rebuild amount
+
+      //calculate participants
+      $skipCount = 0;
+      $participantCount = 0;
       foreach ($params as $k => $v) {
-        if (is_array($v)) {
-          foreach (array(
-            'first_name', 'last_name') as $name) {
-            if (isset($v['billing_' . $name]) &&
-              !isset($v[$name])
-            ) {
-              $v[$name] = $v['billing_' . $name];
-            }
-          }
-
-          if (CRM_Utils_Array::value('first_name', $v) && CRM_Utils_Array::value('last_name', $v)) {
-              $append = $v['first_name'] . ' ' . $v['last_name'];
-          }
-          else {
-            //use an email if we have one
-            foreach ($v as $v_key => $v_val) {
-              if (substr($v_key, 0, 6) == 'email-') {
-                $append = $v[$v_key];
-              }
-            }
-          }
-
-          $amount[$k]['label'] = $append;
+        $participantCount++;
+        if(($v == 'skip') && !is_array($v)){
+          $skipCount++;
         }
       }
-      $form->assign('amounts', $amount );
+      $form->assign('skip_count',$skipCount);
+      $form->assign('total_count',$participantCount);
+      
+      //add modified content
+      CRM_Core_Region::instance('page-body')->add(array(
+      'template' => 'CRM/Event/Form/Registration/Eventfee.tpl'
+      ));
+      
+      
     }
-  }*/
+  }
 }
+
 
 
 /**
